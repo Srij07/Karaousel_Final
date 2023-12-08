@@ -1,0 +1,7 @@
+./app/__pycache__
+./venv/
+./app/endpoint/__pycache__
+./app/graphql/__pycache__
+./app/models/__pycache__
+./app/routers/__pycache__
+./app/service/__pycache__
