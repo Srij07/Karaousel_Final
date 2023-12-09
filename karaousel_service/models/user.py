@@ -3,6 +3,8 @@ from pydantic import BaseModel, Field, SecretStr
 from pydantic.networks import EmailStr
 from typing import Optional
 from typing import List
+import strawberry
+
 
 class User(BaseModel):
     id: int

@@ -10,7 +10,7 @@ router = APIRouter(prefix="/user",
 
 @router.get("/", response_description="List users", response_model=List[User])
 def list_users(request: Request):
-    user_list = users.list_users(request, 100)
+    user_list = users.list_users(100)
     return user_list
 
 @router.post("/create", response_description="Create a new user", status_code=status.HTTP_201_CREATED)
