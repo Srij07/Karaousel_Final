@@ -1,8 +1,8 @@
 from fastapi import Body, Request, HTTPException, status
 from fastapi.encoders import jsonable_encoder
-from app.models.user import User,UpdateUser
+from models.user import User,UpdateUser
 from bson import ObjectId
-from app.database import UserDoc
+from database import UserDoc
 
 def get_collection_users(request: Request):
   # return UserDoc.find({},{"_id":0})

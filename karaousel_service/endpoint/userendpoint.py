@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Body, Request, status
 from typing import List
-from app.models.user import User,UpdateUser
-import app.service.userservice as users
+from models.user import User,UpdateUser
+import service.userservice as users
 
 
 router = APIRouter(prefix="/user",

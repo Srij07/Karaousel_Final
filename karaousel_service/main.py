@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from dotenv import dotenv_values
 from fastapi.middleware.cors import CORSMiddleware
-from app.graphql.usergql import graphql_app
-from app.routers.router import router as api_router
+from gquery.usergql import graphql_app
+from routers.router import router as api_router
 
 config = dotenv_values(".env")
 

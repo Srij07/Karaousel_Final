@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from app.endpoint import userendpoint
+from endpoint import userendpoint
 
 router = APIRouter()
 
