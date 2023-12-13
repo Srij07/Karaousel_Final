@@ -1,14 +1,23 @@
-from fastapi import Body, Request, HTTPException, status
+from fastapi import Body, Request, HTTPException, status, Depends
 from fastapi.encoders import jsonable_encoder
-from models.user import User,UpdateUser
+from models.user import *
 from bson import ObjectId
 from database import UserDoc
+import hashlib
+import utils
+from service.oauth2 import AuthJWT
+from config import settings
+from datetime import datetime, timedelta
+
+ACCESS_TOKEN_EXPIRES_IN = settings.ACCESS_TOKEN_EXPIRES_IN
+REFRESH_TOKEN_EXPIRES_IN = settings.REFRESH_TOKEN_EXPIRES_IN
 
 def get_collection_users():
   return UserDoc
 
 def create_user(user: User = Body(...)):
     user = jsonable_encoder(user)
+    user['password'] = hashlib.sha256(user['password'].encode()).hexdigest()
     new_user = get_collection_users().insert_one(user)
     created_user = get_collection_users().find_one({"_id": new_user.inserted_id})
     respose = {}
@@ -18,12 +27,10 @@ def create_user(user: User = Body(...)):
 def list_users(limit: int):
     # users = get_collection_users(request)
     users = list(get_collection_users().find(limit = limit))
-    for user_data in users:
-        print (user_data["id"])
     return users
   
 def find_user(id: int):
-    if (user := get_collection_users().find_one({"id": id})):
+    if (user := get_collection_users().find_one({"id": id},{"_id":0,"password":0})):
         return user
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with id {id} not found!")
   
@@ -47,3 +54,32 @@ def update_user(id: str, user: UpdateUser):
         return existing_book
 
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Book not found!")
+
+def authenticate(user: TokenRequest = Body(...), Authorize: AuthJWT = Depends()):
+    response = {}
+    user = jsonable_encoder(user)
+    # Check if the user exist
+    db_user = get_collection_users().find_one({'email': user['email']})
+    if not db_user:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail='Incorrect Email')
+    # Check if the password is valid   
+    user['password'] = hashlib.sha256(user['password'].encode()).hexdigest()
+    
+    if not utils.verify_password(db_user['password'], user['password']):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail='Incorrect Password')
+        
+    access_token = Authorize.create_access_token(
+        subject=str(user["email"]), expires_time=timedelta(minutes=ACCESS_TOKEN_EXPIRES_IN))
+    
+    # Create refresh token
+    refresh_token = Authorize.create_refresh_token(
+        subject=str(user["email"]), expires_time=timedelta(minutes=REFRESH_TOKEN_EXPIRES_IN))
+    
+
+    response["access_token"] = access_token
+    response["refresh_token"] = refresh_token
+    response["msg"] = "Success"
+    return response
+    

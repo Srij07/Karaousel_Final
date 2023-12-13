@@ -5,12 +5,13 @@ from typing import Optional
 from typing import List
 import strawberry
 
-
-class User(BaseModel):
+@strawberry.type
+class User:
     id: int
     name: str 
-    email: EmailStr = Field(unique=True, index=True)
+    email: str
     date: str
+    password: str
 
     class Config:
         allow_population_by_field_name = True
@@ -19,7 +20,8 @@ class User(BaseModel):
                 "id" : 1,
                 "name": "Dolly",
                 "email": "dollyna@gmail.com",
-                "date": "05-12-2023"
+                "date": "05-12-2023",
+                "password": "asnvhgkl"
             }
         }
     
@@ -28,3 +30,11 @@ class User(BaseModel):
 class UpdateUser(BaseModel):
     email: Optional[str] 
     date: Optional[str]
+    
+class Token(BaseModel):
+    access: Optional[str]
+    refresh: Optional[str]
+    
+class TokenRequest(BaseModel):
+    email: str
+    password: Optional[str]

@@ -1,20 +1,14 @@
 import strawberry
 from strawberry.fastapi import GraphQLRouter
-from typing import List
+from typing import List, Optional
 import service.userservice as users
-
-@strawberry.type
-class Query:
-    @strawberry.field
-    def hello(self) -> str:
-        return "Hello World"
 
 @strawberry.type
 class User:
     id: int
     name: str
     email: str
-    date: str    
+    date: str 
 
 @strawberry.type
 class Query:
